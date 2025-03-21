@@ -3,10 +3,10 @@
     public class User
     {
         public int Id { get; set; }
-        public required string Username { get; set; }
-        public required string Email { get; set; }
-        public required string PasswordHash { get; set; }
+        public string? Username { get; set; }
+        public string? Email { get; set; }
+        public string? PasswordHash { get; set; }
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
-        public ICollection<Task> Tasks { get; set; } = new List<Task>();
+        public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     }
 }
