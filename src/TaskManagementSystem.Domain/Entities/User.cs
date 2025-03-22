@@ -8,5 +8,6 @@
         public string? PasswordHash { get; set; }
         public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
         public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+        public Status Status { get; set; }
     }
 }
