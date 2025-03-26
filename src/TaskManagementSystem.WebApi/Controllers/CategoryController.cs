@@ -6,7 +6,7 @@ using TaskManagementSystem.Application;
 namespace TaskManagementSystem.WebApi.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "admin")]
     [Route("[controller]")]
     public class CategoryController : ControllerBase
     {
@@ -28,7 +28,7 @@ namespace TaskManagementSystem.WebApi.Controllers
             {
                 return Created(uri: (string?)null, value: new { id = result.Data.Id });
             }
-            return BadRequest(error: result.Message);
+            return BadRequest(error: new { message =  result.Message });
         }
     }
 }

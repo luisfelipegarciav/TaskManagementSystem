@@ -20,18 +20,29 @@ namespace TaskManagementSystem.Application
             _audience = configuration["Jwt:Audience"];
         }
 
-        public TokenResponse GenerateJwtToken(User user)
+        public TokenResponse GenerateJwtToken(User user, List<string> roles = null)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey);
 
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, user.Username ?? string.Empty),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+            };
+
+            // Add roles to claims
+            if (roles?.Any() ?? false)
+            {
+                foreach (var role in roles)
+                {
+                    claims = claims.Append(new Claim(ClaimTypes.Role, role)).ToArray();
+                }
+            }
+
             var accessTokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new List<Claim>
-                {
-                    new Claim(ClaimTypes.Name, user.Username ?? string.Empty),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-                }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(15), // Short-lived access token
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = _issuer,
@@ -68,6 +79,6 @@ namespace TaskManagementSystem.Application
 
     public interface IJwtService
     {
-        TokenResponse GenerateJwtToken(User user);
+        TokenResponse GenerateJwtToken(User user, List<string> roles = null);
     }
 }

@@ -54,6 +54,19 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task<IEnumerable<Role>> GetUserRolesAsync(int userId)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_user_id = userId
+                };
+
+                return await connection.QueryAsync<Role>("spGetRolesByUserId", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
         public override Task UpdateAsync(User entity)
         {
             throw new NotImplementedException();
