@@ -6,5 +6,6 @@ namespace TaskManagementSystem.Application
     {
         Task<ServiceResponse<UserDto>> CreateUserAsync(CreateUserDto userDto);
         Task<ServiceResponse<User>> GetByUsernameAsync(string username);
+        Task<ServiceResponse<IEnumerable<Role>>> GetByRolesByUserId(int userId);
     }
 }

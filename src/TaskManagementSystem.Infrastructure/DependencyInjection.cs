@@ -16,6 +16,8 @@ namespace TaskManagementSystem.Infrastructure
 
             services.AddScoped<IRepository<User>, UserRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRepository<Category>, CategoryRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             // Add other infrastructure services here (e.g., email service, logging)
             return services;
