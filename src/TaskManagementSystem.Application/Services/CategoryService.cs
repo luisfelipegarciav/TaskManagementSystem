@@ -49,9 +49,25 @@ namespace TaskManagementSystem.Application
             }
         }
 
-        public Task<ServiceResponse<List<CategoryDto>>> GetAllCategoriesAsync()
+        public async Task<ServiceResponse<List<CategoryDto>>> GetAllCategoriesAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result = await _categoryRepositoryGeneric.GetAllAsync();
+                var categories = result?.Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name
+                })?.ToList();
+
+                return ServiceResponse<List<CategoryDto>>.Success(categories ?? new List<CategoryDto>());
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating category.");
+                return ServiceResponse<List<CategoryDto>>.Failure(ex.Message);
+            }
         }
 
         public Task<ServiceResponse<CategoryDto>> GetCategoryByIdAsync(int id)

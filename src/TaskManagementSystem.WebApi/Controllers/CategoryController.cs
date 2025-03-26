@@ -6,7 +6,6 @@ using TaskManagementSystem.Application;
 namespace TaskManagementSystem.WebApi.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "admin")]
     [Route("[controller]")]
     public class CategoryController : ControllerBase
     {
@@ -18,6 +17,7 @@ namespace TaskManagementSystem.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(typeof(int), 201)]
         [ProducesResponseType(typeof(int), 400)]
         public async Task<IActionResult> CreateCategoryAsync([FromBody] CreateCategoryDto dtoBody)
@@ -29,6 +29,20 @@ namespace TaskManagementSystem.WebApi.Controllers
                 return Created(uri: (string?)null, value: new { id = result.Data.Id });
             }
             return BadRequest(error: new { message =  result.Message });
+        }
+
+        [HttpGet]
+        [Authorize(Roles = "admin, taskuser")]
+        [ProducesResponseType(typeof(List<CategoryDto>), 200)]
+        public async Task<IActionResult> GetCategoriesAsync()
+        {
+            var command = new GetCategoryCommand();
+            var result = await _mediator.Send(command);
+            if (result.IsSuccessful)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(error: new { message = result.Message ?? "Unable to pull categories." });
         }
     }
 }

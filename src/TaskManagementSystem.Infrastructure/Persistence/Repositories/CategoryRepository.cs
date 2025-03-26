@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using System.Data;
+using System.Xml.Linq;
 using TaskManagementSystem.Domain;
 using static Dapper.SqlMapper;
 
@@ -30,9 +31,12 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public override Task<List<Category>> GetAllAsync()
+        public async override Task<List<Category>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                return (List<Category>)await connection.QueryAsync<Category>("spGetCategories", param: null, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public override Task<Category> GetByIdAsync(int id)

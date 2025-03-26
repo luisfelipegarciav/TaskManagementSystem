@@ -1,14 +1,14 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Formatting.Json;
+using System.Text;
 using TaskManagementSystem.Application;
 using TaskManagementSystem.Infrastructure;
 using TaskManagementSystem.Infrastructure.Identity;
+using TaskManagementSystem.WebApi.Filters;
 using TaskManagementSystem.WebApi.Middleware;
-using Serilog;
-using Serilog.Formatting.Json;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Filters;
 
 namespace TaskManagementSystem.WebApi
 {
@@ -57,22 +57,8 @@ namespace TaskManagementSystem.WebApi
                     Scheme = "Bearer"
                 });
 
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
-
-                c.OperationFilter<SecurityRequirementsOperationFilter>();
+                // Register the new filter
+                c.OperationFilter<AddAuthorizationHeaderOperationFilter>();
             });
 
             // Configure JWT Bearer Authentication
