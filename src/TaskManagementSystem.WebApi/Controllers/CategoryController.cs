@@ -1,10 +1,12 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.Application;
 
 namespace TaskManagementSystem.WebApi.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("[controller]")]
     public class CategoryController : ControllerBase
     {
