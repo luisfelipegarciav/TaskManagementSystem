@@ -15,6 +15,7 @@ namespace TaskManagementSystem.Infrastructure
             services.AddIdentityInfrastructure(configuration); // register identity services.
 
             services.AddScoped<IRepository<User>, UserRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
 
             // Add other infrastructure services here (e.g., email service, logging)
             return services;

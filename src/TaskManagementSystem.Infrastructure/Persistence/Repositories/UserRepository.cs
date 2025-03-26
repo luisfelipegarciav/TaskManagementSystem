@@ -4,7 +4,7 @@ using TaskManagementSystem.Domain;
 
 namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
 {
-    public class UserRepository : BaseRepository<User>
+    public class UserRepository : BaseRepository<User>, IUserRepository
     {
         public UserRepository(IDatabaseContext context) : base (context)
         {
@@ -39,6 +39,19 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
         public override Task<User> GetByIdAsync(int id)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<User> GetByUsernameAsync(string username)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    in_username = username
+                };
+
+                return await connection.QueryFirstOrDefaultAsync<User>("spGetUserByUsername", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public override Task UpdateAsync(User entity)
