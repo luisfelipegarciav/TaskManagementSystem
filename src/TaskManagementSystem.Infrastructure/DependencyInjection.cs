@@ -26,15 +26,26 @@ namespace TaskManagementSystem.Infrastructure
         public static IServiceCollection AddPersistence(this IServiceCollection services, IConfiguration configuration)
         {
             // Register database context based on configuration
-            string databaseProvider = configuration["DatabaseProvider"];
+            string? databaseProvider = string.IsNullOrEmpty(configuration["DatabaseProvider"]) ? Environment.GetEnvironmentVariable("TskMgr_DatabaseProvider") : configuration["DatabaseProvider"];
+            string? sqlServerConnectionString = string.IsNullOrEmpty(configuration["ConnectionStrings:SqlServerConnection"]) ? Environment.GetEnvironmentVariable("TskMgr_ConnectionStrings__SqlServerConnection") : configuration["ConnectionStrings:SqlServerConnection"];
+            string? mariaDbConnectionString = string.IsNullOrEmpty(configuration["ConnectionStrings:MariaDbConnection"]) ? Environment.GetEnvironmentVariable("TskMgr_ConnectionStrings__MariaDbConnection") : configuration["ConnectionStrings:MariaDbConnection"];
+
+            if (string.IsNullOrWhiteSpace(databaseProvider))
+            {
+                throw new ArgumentNullException("DatabaseProvider setting is required.");
+            }
 
             switch (databaseProvider?.ToLower())
             {
                 case "sqlserver":
-                    services.AddScoped<IDatabaseContext, SqlServerContext>();
+                    if (string.IsNullOrWhiteSpace(sqlServerConnectionString))
+                        throw new ArgumentNullException("SqlServerConnection setting is required.");
+                    services.AddScoped<IDatabaseContext, SqlServerContext>(provider => new SqlServerContext(sqlServerConnectionString));
                     break;
                 default:
-                    services.AddScoped<IDatabaseContext, MariaDbContext>(); // Default to MariaDb
+                    if (string.IsNullOrWhiteSpace(mariaDbConnectionString))
+                        throw new ArgumentNullException("MariaDbConnection setting is required.");
+                    services.AddScoped<IDatabaseContext, MariaDbContext>(provider => new MariaDbContext(mariaDbConnectionString)); // Default to MariaDb
                     break;
             }
 
