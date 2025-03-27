@@ -26,9 +26,16 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
-        public override Task DeleteAsync(int id)
+        public override async Task DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = id
+                };
+                await connection.ExecuteAsync("spDeleteCategory", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public async override Task<List<Category>> GetAllAsync()

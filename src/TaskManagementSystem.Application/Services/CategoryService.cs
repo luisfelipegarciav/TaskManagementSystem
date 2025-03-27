@@ -49,6 +49,30 @@ namespace TaskManagementSystem.Application
             }
         }
 
+        public async Task<ServiceResponse<bool>> DeleteCategoryByIdAsync(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                    throw new InvalidModelException("Invalid category data.");
+
+                var getCategoryByIdResponse = await GetCategoryByIdAsync(id);
+                if (getCategoryByIdResponse == null || !getCategoryByIdResponse.IsSuccessful || getCategoryByIdResponse.Data == null)
+                    throw new CategoryNotFoundException("Category not found.");
+
+                //TODO: _taskItemService.HasTaskItemsByCategoryId(id)
+
+                await _categoryRepositoryGeneric.DeleteAsync(id);
+
+                return ServiceResponse<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating category.");
+                return ServiceResponse<bool>.Failure(ex.Message);
+            }
+        }
+
         public async Task<ServiceResponse<List<CategoryDto>>> GetAllCategoriesAsync()
         {
             try

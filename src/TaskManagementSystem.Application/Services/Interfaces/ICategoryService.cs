@@ -7,5 +7,6 @@
         Task<ServiceResponse<CategoryDto>> GetCategoryByNameAsync(string name);
         Task<ServiceResponse<List<CategoryDto>>> GetAllCategoriesAsync();
         Task<ServiceResponse<bool>> UpdateCategoryAsync(int id, UpdateCategoryDto categoryDto);
+        Task<ServiceResponse<bool>> DeleteCategoryByIdAsync(int id);
     }
 }
