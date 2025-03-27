@@ -52,8 +52,15 @@ namespace TaskManagementSystem.Application
                     return ServiceResponse<TokenResponse>.Failure("Invalid username or password.");
                 }
 
+                var roles = new List<string>();
+                var userRoles = await _userService.GetByRolesByUserId(user.Id);
+                if (userRoles.IsSuccessful && (userRoles.Data?.Any() ?? false))
+                {
+                    roles = userRoles.Data.Select(x => x.Name).ToList();
+                }
+
                 _logger.LogInformation($"User '{username}' authenticated successfully.");
-                var token = _jwtService.GenerateJwtToken(user);
+                var token = _jwtService.GenerateJwtToken(user, roles);
                 return ServiceResponse<TokenResponse>.Success(token, "Authentication successful.");
             }
             catch (System.Exception ex)

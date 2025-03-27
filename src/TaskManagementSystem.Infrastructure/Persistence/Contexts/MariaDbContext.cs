@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
 using System.Data;
 
 namespace TaskManagementSystem.Infrastructure.Persistence
@@ -8,9 +7,9 @@ namespace TaskManagementSystem.Infrastructure.Persistence
     {
         private readonly string _connectionString;
 
-        public MariaDbContext(IConfiguration configuration)
+        public MariaDbContext(string connectionString)
         {
-            _connectionString = configuration.GetConnectionString("MariaDbConnection") ?? throw new ArgumentNullException(nameof(configuration), "Connection string cannot be null");
+            _connectionString = connectionString;
         }
 
         public IDbConnection CreateConnection() => new MySqlConnection(_connectionString);

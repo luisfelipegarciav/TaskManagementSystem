@@ -52,6 +52,20 @@ namespace TaskManagementSystem.Application
             }
         }
 
+        public async Task<ServiceResponse<IEnumerable<Role>>> GetByRolesByUserId(int userId)
+        {
+            try
+            {
+                var result = await _userRepository.GetUserRolesAsync(userId);
+                return ServiceResponse<IEnumerable<Role>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(UserService)}.{nameof(GetByUsernameAsync)}");
+                return ServiceResponse<IEnumerable<Role>>.Failure(ex.Message);
+            }
+        }
+
         public async Task<ServiceResponse<User>> GetByUsernameAsync(string username)
         {
             try
