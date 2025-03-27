@@ -26,9 +26,16 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
-        public override Task DeleteAsync(int id)
+        public override async Task DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = id
+                };
+                await connection.ExecuteAsync("spDeleteCategory", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public async override Task<List<Category>> GetAllAsync()
@@ -39,9 +46,16 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
-        public override Task<Category> GetByIdAsync(int id)
+        public override async Task<Category> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = id
+                };
+                return await connection.QueryFirstOrDefaultAsync<Category>("spGetCategoryById", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public async Task<Category> GetCategoryByName(string name)
@@ -57,9 +71,17 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
-        public override Task UpdateAsync(Category entity)
+        public override async Task UpdateAsync(Category entity)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = entity.Id,
+                    p_name = entity.Name
+                };
+                await connection.ExecuteAsync("spUpdateCategory", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
     }
 }

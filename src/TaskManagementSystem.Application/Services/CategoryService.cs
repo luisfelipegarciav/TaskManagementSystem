@@ -25,11 +25,11 @@ namespace TaskManagementSystem.Application
             try
             {
                 if(categoryDto == null || string.IsNullOrWhiteSpace(categoryDto.Name))
-                    return ServiceResponse<CategoryDto>.Failure("Unable to process data for category.");
+                    throw new InvalidModelException("Invalid category data.");
 
-                var existingCategory = await _categoryRepository.GetCategoryByName(categoryDto.Name);
-                if (existingCategory != null)
-                    return ServiceResponse<CategoryDto>.Failure("Category already exists.");
+                var getCategoryByNameResponse = await GetCategoryByNameAsync(categoryDto.Name);
+                if (getCategoryByNameResponse != null && getCategoryByNameResponse.IsSuccessful && getCategoryByNameResponse.Data != null)
+                    throw new EntityAlreadyExistsException($"Category {categoryDto.Name} already exists.");
 
                 var category = new Category { Name = categoryDto.Name };
 
@@ -46,6 +46,30 @@ namespace TaskManagementSystem.Application
             {
                 _logger.LogError(ex, "Error creating category.");
                 return ServiceResponse<CategoryDto>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<ServiceResponse<bool>> DeleteCategoryByIdAsync(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                    throw new InvalidModelException("Invalid category data.");
+
+                var getCategoryByIdResponse = await GetCategoryByIdAsync(id);
+                if (getCategoryByIdResponse == null || !getCategoryByIdResponse.IsSuccessful || getCategoryByIdResponse.Data == null)
+                    throw new CategoryNotFoundException("Category not found.");
+
+                //TODO: _taskItemService.HasTaskItemsByCategoryId(id)
+
+                await _categoryRepositoryGeneric.DeleteAsync(id);
+
+                return ServiceResponse<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating category.");
+                return ServiceResponse<bool>.Failure(ex.Message);
             }
         }
 
@@ -70,9 +94,85 @@ namespace TaskManagementSystem.Application
             }
         }
 
-        public Task<ServiceResponse<CategoryDto>> GetCategoryByIdAsync(int id)
+        public async Task<ServiceResponse<CategoryDto>> GetCategoryByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (id <= 0)
+                    throw new InvalidModelException("Invalid category id.");
+
+                var result = await _categoryRepositoryGeneric.GetByIdAsync(id);
+
+                if (result == null)
+                    throw new CategoryNotFoundException("Category not found.");
+
+                return ServiceResponse<CategoryDto>.Success(new CategoryDto
+                {
+                    Id = result.Id,
+                    Name = result.Name
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error pulling category.");
+                return ServiceResponse<CategoryDto>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<ServiceResponse<CategoryDto>> GetCategoryByNameAsync(string name)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                    throw new InvalidModelException("Invalid category name.");
+
+                var result = await _categoryRepository.GetCategoryByName(name);
+
+                if (result == null)
+                    throw new CategoryNotFoundException("Category not found.");
+
+                return ServiceResponse<CategoryDto>.Success(new CategoryDto
+                {
+                    Id = result.Id,
+                    Name = result.Name
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error pulling category.");
+                return ServiceResponse<CategoryDto>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<ServiceResponse<bool>> UpdateCategoryAsync(int id, UpdateCategoryDto categoryDto)
+        {
+            try
+            {
+                if (categoryDto == null
+                    || string.IsNullOrWhiteSpace(categoryDto.Name)
+                    || id <= 0)
+                    throw new InvalidModelException("Invalid category data.");
+
+                var getCategoryByIdResponse = await GetCategoryByIdAsync(id);
+                if (getCategoryByIdResponse == null || !getCategoryByIdResponse.IsSuccessful || getCategoryByIdResponse.Data == null)
+                    throw new CategoryNotFoundException("Category not found.");
+
+                var getCategoryByNameResponse = await GetCategoryByNameAsync(categoryDto.Name);
+                if (getCategoryByNameResponse != null && getCategoryByNameResponse.IsSuccessful && getCategoryByNameResponse.Data != null && getCategoryByNameResponse.Data.Id != id)
+                    throw new EntityAlreadyExistsException("Category already exists.");
+
+                await _categoryRepositoryGeneric.UpdateAsync(new Category
+                {
+                    Id = id,
+                    Name = categoryDto.Name
+                });
+                return ServiceResponse<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating category.");
+                return ServiceResponse<bool>.Failure(ex.Message);
+            }
         }
     }
 }
