@@ -44,5 +44,20 @@ namespace TaskManagementSystem.WebApi.Controllers
             }
             return BadRequest(error: new { message = result.Message ?? "Unable to pull categories." });
         }
+
+        [HttpPatch("{id}")]
+        [Authorize(Roles = "admin")]
+        [ProducesResponseType(typeof(int), 200)]
+        [ProducesResponseType(typeof(int), 400)]
+        public async Task<IActionResult> UpdateCategoryAsync(int id, [FromBody] UpdateCategoryDto dtoBody)
+        {
+            var command = new UpdateCategoryCommand(id, dtoBody);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccessful)
+            {
+                return Ok();
+            }
+            return BadRequest(error: new { message = result.Message });
+        }
     }
 }

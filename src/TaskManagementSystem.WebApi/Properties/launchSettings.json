@@ -40,7 +40,7 @@
         "TskMgr_ConnectionStrings__MariaDbConnection": "Server=localhost;Port=3306;Database=taskmanagement;Uid=myuser;Pwd=mypassword;",
         "TskMgr_Jwt__Issuer": "TaskManagementSystem.WebApi",
         "TskMgr_Jwt__Audience": "MyClient",
-        "TskMgr_Jwt__SecretKey": "your_secret_key"
+        "TskMgr_Jwt__SecretKey": "JM+bB29HDjnRDNnLB/CgOhc5tO7Iiu/AG+xC3zNgshU="
       }
     }
   }
