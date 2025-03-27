@@ -34,7 +34,13 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "TskMgr_DatabaseProvider": "mariadb",
+        "TskMgr_ConnectionStrings__SqlServerConnection": "Server=localhost;Database=TaskManagementDb;User Id=YourUserId;Password=YourPassword;TrustServerCertificate=True",
+        "TskMgr_ConnectionStrings__MariaDbConnection": "Server=localhost;Port=3306;Database=taskmanagement;Uid=myuser;Pwd=mypassword;",
+        "TskMgr_Jwt__Issuer": "TaskManagementSystem.WebApi",
+        "TskMgr_Jwt__Audience": "MyClient",
+        "TskMgr_Jwt__SecretKey": "your_secret_key"
       }
     }
   }
