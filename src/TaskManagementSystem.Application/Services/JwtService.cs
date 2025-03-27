@@ -15,9 +15,27 @@ namespace TaskManagementSystem.Application
 
         public JwtService(IConfiguration configuration)
         {
-            _secretKey = configuration["Jwt:SecretKey"];
-            _issuer = configuration["Jwt:Issuer"];
-            _audience = configuration["Jwt:Audience"];
+            // Try to get from appsettings, then fallback to env var.
+            _secretKey = !string.IsNullOrWhiteSpace(configuration["Jwt:SecretKey"]) ? configuration["Jwt:SecretKey"]! : Environment.GetEnvironmentVariable("TskMgr_Jwt__SecretKey")!;
+            _issuer = !string.IsNullOrWhiteSpace(configuration["Jwt:Issuer"]) ? configuration["Jwt:Issuer"]! : Environment.GetEnvironmentVariable("TskMgr_Jwt__Issuer")!;
+            _audience = !string.IsNullOrWhiteSpace(configuration["Jwt:Audience"]) ? configuration["Jwt:Audience"]! : Environment.GetEnvironmentVariable("TskMgr_Jwt__Audience")!;
+            ValidateJwtSettings();
+        }
+
+        private void ValidateJwtSettings()
+        {
+            if (string.IsNullOrWhiteSpace(_secretKey))
+            {
+                throw new ArgumentNullException(nameof(_secretKey), "JWT SecretKey is not set.");
+            }
+            if (string.IsNullOrWhiteSpace(_issuer))
+            {
+                throw new ArgumentNullException(nameof(_issuer), "JWT Issuer is not set.");
+            }
+            if (string.IsNullOrWhiteSpace(_audience))
+            {
+                throw new ArgumentNullException(nameof(_audience), "JWT Audience is not set.");
+            }
         }
 
         public TokenResponse GenerateJwtToken(User user, List<string> roles = null)
@@ -53,9 +71,9 @@ namespace TaskManagementSystem.Application
             var refreshTokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new List<Claim>
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-                }),
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+                    }),
                 Expires = DateTime.UtcNow.AddDays(7), // Long-lived refresh token
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = _issuer,

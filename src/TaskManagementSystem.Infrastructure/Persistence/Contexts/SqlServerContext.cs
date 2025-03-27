@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
 
 namespace TaskManagementSystem.Infrastructure.Persistence
@@ -8,9 +7,9 @@ namespace TaskManagementSystem.Infrastructure.Persistence
     {
         private readonly string _connectionString;
 
-        public SqlServerContext(IConfiguration configuration)
+        public SqlServerContext(string connectionString)
         {
-            _connectionString = configuration.GetConnectionString("SqlServerConnection") ?? throw new ArgumentNullException(nameof(configuration), "Connection string cannot be null");
+            _connectionString = connectionString;
         }
 
         public IDbConnection CreateConnection() => new SqlConnection(_connectionString);

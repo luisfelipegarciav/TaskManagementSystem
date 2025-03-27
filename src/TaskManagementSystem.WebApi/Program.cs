@@ -18,6 +18,10 @@ namespace TaskManagementSystem.WebApi
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Add appsettings.json configuration provider
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            builder.Configuration.AddEnvironmentVariables();
+
             // Configure Serilog
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information() // Set the minimum log level
@@ -71,9 +75,9 @@ namespace TaskManagementSystem.WebApi
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                        ValidAudience = builder.Configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
+                        ValidIssuer = string.IsNullOrEmpty(builder.Configuration["Jwt:Issuer"]) ? Environment.GetEnvironmentVariable("TskMgr_Jwt__Issuer") : builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = string.IsNullOrEmpty(builder.Configuration["Jwt:Audience"]) ? Environment.GetEnvironmentVariable("TskMgr_Jwt__Audience") : builder.Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(string.IsNullOrEmpty(builder.Configuration["Jwt:SecretKey"]) ? Environment.GetEnvironmentVariable("TskMgr_Jwt__SecretKey") : builder.Configuration["Jwt:SecretKey"]))
                     };
                 });
 
