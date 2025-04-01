@@ -77,6 +77,27 @@ namespace TaskManagementSystem.Application
             }
         }
 
+        public async Task<ServiceResponse<bool>> DeleteTaskItemAsync(int id, int userId)
+        {
+            try
+            {
+                if (userId < 1)
+                    throw new InvalidModelException("Invalid user found.");
+
+                var currentTaskItem = (await GetTaskItemByIdAsync(id, userId)).Data;
+
+                await _genericRepository.DeleteAsync(currentTaskItem.Id);
+
+                return ServiceResponse<bool>.Success(true);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting task item.");
+                return ServiceResponse<bool>.Failure(ex.Message);
+            }
+        }
+
         public async Task<ServiceResponse<TaskItemDto>> GetTaskItemByIdAsync(int id, int userId)
         {
             try
