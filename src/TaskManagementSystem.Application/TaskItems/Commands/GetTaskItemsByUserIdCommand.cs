@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManagementSystem.Application.TaskItems.Commands
+namespace TaskManagementSystem.Application
 {
     public record GetTaskItemsByUserIdCommand(int userId, PaginationParamsDto pagination) : IRequest<ServiceResponse<PaginatedResultDto<TaskItemDto>>>;
 

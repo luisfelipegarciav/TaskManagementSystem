@@ -93,6 +93,20 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task MarkTaskItemAsCompletedByIdAsync(int id, DateTime updatedAt)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = id,
+                    p_completed_at = updatedAt
+                };
+
+                await connection.ExecuteAsync("spCompleteTaskItem", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
         public override Task UpdateAsync(TaskItem entity)
         {
             throw new NotImplementedException();

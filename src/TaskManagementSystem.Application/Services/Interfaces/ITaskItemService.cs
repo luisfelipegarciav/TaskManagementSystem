@@ -8,5 +8,6 @@
         //Task<ServiceResponse<IEnumerable<TaskItemDto>>> GetAllTaskItemsAsync(int userId);
         Task<ServiceResponse<TaskItemDto>> GetTaskItemByIdAsync(int id, int userId);
         Task<ServiceResponse<PaginatedResultDto<TaskItemDto>>> GetTaskItemsByUserIdAsync(int id, PaginationParamsDto paginationParams);
+        Task<ServiceResponse<bool>> MarkTaskItemAsCompletedAsync(int id, int userId);
     }
 }

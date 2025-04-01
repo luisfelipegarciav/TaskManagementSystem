@@ -200,5 +200,31 @@ namespace TaskManagementSystem.Application
                 return ServiceResponse<PaginatedResultDto<TaskItemDto>>.Failure(ex.Message);
             }
         }
+
+        public async Task<ServiceResponse<bool>> MarkTaskItemAsCompletedAsync(int id, int userId)
+        {
+            try
+            {
+                if (id < 1)
+                    throw new InvalidModelException("Invalid task id.");
+
+                if (userId < 1)
+                    throw new InvalidModelException("Invalid user.");
+
+                var currentTaskItem = (await GetTaskItemByIdAsync(id, userId)).Data;
+
+                if (currentTaskItem.IsCompleted)
+                    throw new UpdateEntityException("Task already mark as completed.");
+
+                await _taskItemRepository.MarkTaskItemAsCompletedByIdAsync(id, DateTime.UtcNow);
+
+                return ServiceResponse<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error marking task as completed.");
+                return ServiceResponse<bool>.Failure(ex.Message);
+            }
+        }
     }
 }

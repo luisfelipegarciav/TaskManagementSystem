@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.Application;
-using TaskManagementSystem.Application.TaskItems.Commands;
 using TaskManagementSystem.WebApi.Extensions;
 
 namespace TaskManagementSystem.WebApi.Controllers
@@ -87,6 +86,25 @@ namespace TaskManagementSystem.WebApi.Controllers
                 return Unauthorized("Invalid user");
             }
             var command = new DeleteTaskItemCommand(userId.Value, id);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccessful)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(error: new { message = result.Message });
+        }
+
+        [HttpPatch("{id}/completed")]
+        [ProducesResponseType(typeof(int), 200)]
+        [ProducesResponseType(typeof(int), 400)]
+        public async Task<IActionResult> MarkAsCompletedTaskItemsByIdAsync(int id)
+        {
+            var userId = HttpContext.GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized("Invalid user");
+            }
+            var command = new MarkTaskItemAsCompletedCommand(userId.Value, id);
             var result = await _mediator.Send(command);
             if (result.IsSuccessful)
             {

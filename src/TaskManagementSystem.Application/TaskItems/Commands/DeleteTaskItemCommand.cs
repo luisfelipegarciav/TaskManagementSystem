@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace TaskManagementSystem.Application.TaskItems.Commands
+namespace TaskManagementSystem.Application
 {
     public record DeleteTaskItemCommand(int userId, int taskId) : IRequest<ServiceResponse<bool>>;
 
