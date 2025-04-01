@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using Dapper;
+using System.Data;
 using TaskManagementSystem.Domain;
 using static Dapper.SqlMapper;
 
@@ -53,6 +54,34 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
                     p_id = id
                 };
                 return await connection.QueryFirstOrDefaultAsync<TaskItem>("spGetTaskItemById", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task<IEnumerable<TaskItem>> GetTaskItemsByUserIdAsync(int id, int pageNumber, int pageSize)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_user_id = id,
+                    p_offset = pageNumber,
+                    p_fetch_rows = pageSize
+                };
+
+                return await connection.QueryAsync<TaskItem>("spGetTaskItemsByUserId", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task<int> GetTaskItemsCountByUserIdAsync(int id)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_user_id = id
+                };
+
+                return await connection.ExecuteScalarAsync<int>("spTaskItemCountByUserId", parameters, commandType: CommandType.StoredProcedure);
             }
         }
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagementSystem.Application;
+using TaskManagementSystem.Application.TaskItems.Commands;
 using TaskManagementSystem.WebApi.Extensions;
 
 namespace TaskManagementSystem.WebApi.Controllers
@@ -48,6 +49,25 @@ namespace TaskManagementSystem.WebApi.Controllers
                 return Unauthorized("Invalid user");
             }
             var command = new GetTaskItemCommand(userId.Value, id);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccessful)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(error: new { message = result.Message });
+        }
+
+        [HttpPost("/mytasks")]
+        [ProducesResponseType(typeof(int), 200)]
+        [ProducesResponseType(typeof(int), 400)]
+        public async Task<IActionResult> GetTaskItemsByUserAsync([FromBody] PaginationParamsDto paginationParamsDto)
+        {
+            var userId = HttpContext.GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized("Invalid user");
+            }
+            var command = new GetTaskItemsByUserIdCommand(userId.Value, paginationParamsDto);
             var result = await _mediator.Send(command);
             if (result.IsSuccessful)
             {

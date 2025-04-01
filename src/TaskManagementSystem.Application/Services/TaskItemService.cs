@@ -126,5 +126,58 @@ namespace TaskManagementSystem.Application
                 return ServiceResponse<TaskItemDto>.Failure(ex.Message);
             }
         }
+
+        public async Task<ServiceResponse<PaginatedResultDto<TaskItemDto>>> GetTaskItemsByUserIdAsync(int id, PaginationParamsDto paginationParams)
+        {
+            try
+            {
+                if (id < 1)
+                    throw new InvalidModelException("Invalid task id.");
+
+                if (paginationParams == null
+                    || paginationParams.PageNumber < 1
+                    || paginationParams.PageSize < 1)
+                    throw new InvalidModelException("Invalid pagination params.");
+
+                var taskCount = await _taskItemRepository.GetTaskItemsCountByUserIdAsync(id);
+
+                var items = new List<TaskItemDto>();
+                if (taskCount > 0)
+                {
+                    var categories = (await _categoryService.GetAllCategoriesAsync()).Data;
+
+                    var rowOffset = (paginationParams.PageNumber - 1) * paginationParams.PageSize;
+                    var tasks = await _taskItemRepository.GetTaskItemsByUserIdAsync(id, rowOffset, paginationParams.PageSize);
+                    items = tasks?.Select(x =>
+                    new TaskItemDto
+                    {
+                        CategoryId = x.CategoryId,
+                        Title = x.Title,
+                        Description = x.Description,
+                        DueDate = x.DueDate,
+                        Priority = x.Priority,
+                        Id = x.Id,
+                        IsCompleted = x.Completed,
+                        CreatedAt = x.CreatedAt,
+                        CompletedAt = x.CompletedAt,
+                        CategoryName = categories?.FirstOrDefault(c => c.Id == x.CategoryId)?.Name
+                    })?.ToList();
+                }
+
+                return ServiceResponse<PaginatedResultDto<TaskItemDto>>.Success(new PaginatedResultDto<TaskItemDto>
+                {
+                    Items = items ?? new List<TaskItemDto>(),
+                    TotalCount = taskCount,
+                    PageNumber = paginationParams.PageNumber,
+                    PageSize = paginationParams.PageSize
+                });
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting task items by user id.");
+                return ServiceResponse<PaginatedResultDto<TaskItemDto>>.Failure(ex.Message);
+            }
+        }
     }
 }

@@ -7,5 +7,6 @@
         //Task<ServiceResponse<bool>> DeleteTaskItemAsync(int id);
         //Task<ServiceResponse<IEnumerable<TaskItemDto>>> GetAllTaskItemsAsync(int userId);
         Task<ServiceResponse<TaskItemDto>> GetTaskItemByIdAsync(int id, int userId);
+        Task<ServiceResponse<PaginatedResultDto<TaskItemDto>>> GetTaskItemsByUserIdAsync(int id, PaginationParamsDto paginationParams);
     }
 }
