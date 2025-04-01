@@ -3,21 +3,24 @@ using TaskManagementSystem.Domain;
 
 namespace TaskManagementSystem.Application
 {
-    public class TaskItemService: ITaskItemService
+    public class TaskItemService : ITaskItemService
     {
-        private readonly ILogger<CategoryService> _logger;
+        private readonly ILogger<TaskItemService> _logger;
         private readonly ITaskItemRepository _taskItemRepository;
         private readonly ICategoryService _categoryService;
+        private readonly IRepository<TaskItem> _genericRepository;
 
         public TaskItemService(
-            ILogger<CategoryService> logger,
+            ILogger<TaskItemService> logger,
             ITaskItemRepository taskItemRepository,
-            ICategoryService categoryService
+            ICategoryService categoryService,
+            IRepository<TaskItem> genericRepository
             )
         {
             _logger = logger;
             _taskItemRepository = taskItemRepository;
             _categoryService = categoryService;
+            _genericRepository = genericRepository;
         }
 
         public async Task<ServiceResponse<TaskItemDto>> CreateTaskItemAsync(int userId, CreateTaskItemDto taskItemDto)
@@ -70,6 +73,56 @@ namespace TaskManagementSystem.Application
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating category.");
+                return ServiceResponse<TaskItemDto>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<ServiceResponse<TaskItemDto>> GetTaskItemByIdAsync(int id, int userId)
+        {
+            try
+            {
+                if (id < 1)
+                    throw new InvalidModelException("Invalid task id.");
+
+                if (userId < 1)
+                    throw new InvalidModelException("Invalid user found.");
+
+                var currentTaskItem = await _genericRepository.GetByIdAsync(id);
+                if (currentTaskItem == null)
+                {
+                    throw new TaskItemNotFoundException();
+                } else if (currentTaskItem.UserId != userId)
+                {
+                    throw new TaskItemNotFoundException("Task item do not belongs to current user");
+                }
+
+
+                var getCategoryByIdResponse = await _categoryService.GetCategoryByIdAsync(currentTaskItem.CategoryId);
+                if (!getCategoryByIdResponse.IsSuccessful)
+                {
+                    throw new CategoryNotFoundException();
+                }
+
+                var category = getCategoryByIdResponse.Data;
+
+                return ServiceResponse<TaskItemDto>.Success(new TaskItemDto
+                {
+                    Id = currentTaskItem.Id,
+                    Title = currentTaskItem.Title,
+                    Description = currentTaskItem.Description,
+                    DueDate = currentTaskItem.DueDate,
+                    Priority = (Priority)Enum.Parse(typeof(Priority), currentTaskItem.Priority.ToString()),
+                    CategoryId = currentTaskItem.CategoryId,
+                    CategoryName = category.Name,
+                    CreatedAt = currentTaskItem.CreatedAt,
+                    IsCompleted = currentTaskItem.Completed,
+                    CompletedAt = currentTaskItem.CompletedAt
+                });
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting task item.");
                 return ServiceResponse<TaskItemDto>.Failure(ex.Message);
             }
         }

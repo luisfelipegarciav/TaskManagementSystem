@@ -36,5 +36,24 @@ namespace TaskManagementSystem.WebApi.Controllers
             }
             return BadRequest(error: new { message = result.Message });
         }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(int), 200)]
+        [ProducesResponseType(typeof(int), 400)]
+        public async Task<IActionResult> GetTaskItemAsync(int id)
+        {
+            var userId = HttpContext.GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized("Invalid user");
+            }
+            var command = new GetTaskItemCommand(userId.Value, id);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccessful)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(error: new { message = result.Message });
+        }
     }
 }

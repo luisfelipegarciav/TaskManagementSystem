@@ -44,9 +44,16 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             throw new NotImplementedException();
         }
 
-        public override Task<TaskItem> GetByIdAsync(int id)
+        public override async Task<TaskItem> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = id
+                };
+                return await connection.QueryFirstOrDefaultAsync<TaskItem>("spGetTaskItemById", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public override Task UpdateAsync(TaskItem entity)
