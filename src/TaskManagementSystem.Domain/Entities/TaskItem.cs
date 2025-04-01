@@ -8,6 +8,6 @@
         public DateTime DueDate { get; set; }
         public Priority Priority { get; set; }
         public int CategoryId { get; set; }
-        public required Category Category { get; set; }
+        public Category Category { get; set; }
     }
 }
