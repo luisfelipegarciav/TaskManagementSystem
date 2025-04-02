@@ -112,5 +112,24 @@ namespace TaskManagementSystem.WebApi.Controllers
             }
             return BadRequest(error: new { message = result.Message });
         }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(int), 200)]
+        [ProducesResponseType(typeof(int), 400)]
+        public async Task<IActionResult> UpdateTaskItemAsync(int id, [FromBody] UpdateTaskItemDto updateTaskItemDto)
+        {
+            var userId = HttpContext.GetUserId();
+            if (userId == null)
+            {
+                return Unauthorized("Invalid user");
+            }
+            var command = new UpdateTaskItemCommand(userId.Value, id, updateTaskItemDto);
+            var result = await _mediator.Send(command);
+            if (result.IsSuccessful)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(error: new { message = result.Message });
+        }
     }
 }

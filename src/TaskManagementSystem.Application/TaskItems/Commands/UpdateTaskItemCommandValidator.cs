@@ -2,9 +2,9 @@
 
 namespace TaskManagementSystem.Application
 {
-    public class CreateTaskItemCommandValidator : AbstractValidator<CreateTaskItemCommand>
+    public class UpdateTaskItemCommandValidator : AbstractValidator<UpdateTaskItemCommand>
     {
-        public CreateTaskItemCommandValidator()
+        public UpdateTaskItemCommandValidator()
         {
             RuleFor(x => x.dto)
                 .NotNull().WithMessage("Task item data is required.")

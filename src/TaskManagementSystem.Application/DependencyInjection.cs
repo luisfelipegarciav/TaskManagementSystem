@@ -12,6 +12,7 @@ namespace TaskManagementSystem.Application
             services.AddValidatorsFromAssemblyContaining<CreateUserDto>();
             services.AddValidatorsFromAssemblyContaining<CreateCategoryDto>();
             services.AddValidatorsFromAssemblyContaining<CreateTaskItemDto>();
+            services.AddValidatorsFromAssemblyContaining<UpdateTaskItemDto>();
             services.AddValidatorsFromAssemblyContaining<AuthenticateUserCommandValidator>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddTransient<IUserService, UserService>();

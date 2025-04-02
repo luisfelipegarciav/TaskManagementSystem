@@ -30,28 +30,9 @@ namespace TaskManagementSystem.Application
                 if (userId < 1)
                     throw new InvalidModelException("Invalid user found.");
 
-                if (taskItemDto == null
-                    || string.IsNullOrWhiteSpace(taskItemDto.Title)
-                    || string.IsNullOrWhiteSpace(taskItemDto.Description)
-                    || string.IsNullOrWhiteSpace(taskItemDto.Priority)
-                    || taskItemDto.CategoryId < 1
-                    || taskItemDto.DueDate.Date < DateTime.Now.Date                    
-                    )
-                {
-                    throw new InvalidModelException("Unable to process data.");
-                }
+                await ValidateTaskItem(taskItemDto);
 
-                var currentPriority = Enum.TryParse(taskItemDto.Priority, out Priority priority);
-                if (!currentPriority)
-                {
-                    throw new InvalidModelException("Invalid priority.");
-                }
-
-                var getCategoryByIdResponse = await _categoryService.GetCategoryByIdAsync(taskItemDto.CategoryId);
-                if (!getCategoryByIdResponse.IsSuccessful)
-                {
-                    throw new CategoryNotFoundException();
-                }
+                Enum.TryParse(taskItemDto.Priority, out Priority priority);
 
                 var entity = new TaskItem()
                 {
@@ -224,6 +205,91 @@ namespace TaskManagementSystem.Application
             {
                 _logger.LogError(ex, "Error marking task as completed.");
                 return ServiceResponse<bool>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<ServiceResponse<bool>> UpdateTaskItemAsync(int id, int userId, UpdateTaskItemDto taskItemDto)
+        {
+            try
+            {
+                await ValidateTaskItem(taskItemDto);
+
+                var currentTaskItem = (await GetTaskItemByIdAsync(id, userId)).Data;
+                if (currentTaskItem.IsCompleted)
+                {
+                    throw new UpdateEntityException("Task item already completed, can not be updated.");
+                }
+
+                Enum.TryParse(taskItemDto.Priority, out Priority priority);
+
+                var entity = new TaskItem()
+                {
+                    Id = id,
+                    Title = taskItemDto.Title,
+                    Description = taskItemDto.Description,
+                    DueDate = taskItemDto.DueDate,
+                    Priority = priority,
+                    CategoryId = taskItemDto.CategoryId,
+                    UserId = userId
+                };
+
+                await _genericRepository.UpdateAsync(entity);
+
+                return ServiceResponse<bool>.Success(true);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating task item.");
+                return ServiceResponse<bool>.Failure(ex.Message);
+            }
+        }
+
+        private bool IsValidPriority(string priority)
+        {
+            return Enum.TryParse(priority, out Priority _);
+        }
+
+        private bool IsValidDueDate(DateTime dueDate)
+        {
+            return dueDate.Date >= DateTime.UtcNow.Date;
+        }
+
+        private async Task ValidateTaskItem(CreateTaskItemDto taskItemDto)
+        {
+            if (taskItemDto == null)
+            {
+                throw new InvalidModelException("Unable to process data.");
+            }
+
+            if (string.IsNullOrWhiteSpace(taskItemDto.Title))
+                throw new InvalidModelException("Title is required.");
+
+            if (string.IsNullOrWhiteSpace(taskItemDto.Description))
+                throw new InvalidModelException("Description is required.");
+
+            if (string.IsNullOrWhiteSpace(taskItemDto.Priority))
+                throw new InvalidModelException("Priority is required.");
+
+            if (taskItemDto.CategoryId < 1)
+                throw new InvalidModelException("CategoryId is required.");
+
+            if (!IsValidPriority(taskItemDto.Priority.ToString()))
+                throw new InvalidModelException("Invalid priority.");
+
+            if (!IsValidDueDate(taskItemDto.DueDate))
+                throw new InvalidModelException("Invalid Due date.");
+
+            var currentPriority = Enum.TryParse(taskItemDto.Priority, out Priority priority);
+            if (!currentPriority)
+            {
+                throw new InvalidModelException("Invalid priority.");
+            }
+
+            var getCategoryByIdResponse = await _categoryService.GetCategoryByIdAsync(taskItemDto.CategoryId);
+            if (!getCategoryByIdResponse.IsSuccessful)
+            {
+                throw new CategoryNotFoundException();
             }
         }
     }

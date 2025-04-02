@@ -107,9 +107,22 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
-        public override Task UpdateAsync(TaskItem entity)
+        public override async Task UpdateAsync(TaskItem entity)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = entity.Id,
+                    p_category_id = entity.CategoryId,
+                    p_title = entity.Title,
+                    p_description = entity.Description,
+                    p_due_date = entity.DueDate.Date,
+                    p_priority = entity.Priority,
+                };
+
+                await connection.ExecuteAsync("spUpdateTaskItem", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
     }
 }
