@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using System.Data;
 using TaskManagementSystem.Domain;
-using static Dapper.SqlMapper;
 
 namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
 {
@@ -11,27 +10,22 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
         {
         }
 
-        public override Task<TaskItem> AddAsync(TaskItem entity)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<TaskItem> CreateTaskItemAsync(int userId, TaskItem taskItem)
+        public override async Task<TaskItem> AddAsync(TaskItem entity)
         {
             using (IDbConnection connection = CreateConnection())
             {
                 var parameters = new
                 {
-                    p_user_id = userId,
-                    p_title = taskItem.Title,
-                    p_description = taskItem.Description,
-                    p_due_date = taskItem.DueDate,
-                    p_priority = taskItem.Priority,
-                    p_category_id = taskItem.CategoryId,
+                    p_user_id = entity.UserId,
+                    p_title = entity.Title,
+                    p_description = entity.Description,
+                    p_due_date = entity.DueDate,
+                    p_priority = entity.Priority,
+                    p_category_id = entity.CategoryId,
                 };
 
-                taskItem.Id = await connection.ExecuteScalarAsync<int>("spCreateTaskItem", parameters, commandType: CommandType.StoredProcedure);
-                return taskItem;
+                entity.Id = await connection.ExecuteScalarAsync<int>("spCreateTaskItem", parameters, commandType: CommandType.StoredProcedure);
+                return entity;
             }
         }
 

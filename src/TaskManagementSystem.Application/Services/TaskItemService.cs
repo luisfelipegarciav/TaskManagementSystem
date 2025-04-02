@@ -40,10 +40,11 @@ namespace TaskManagementSystem.Application
                     Description = taskItemDto.Description,
                     DueDate = taskItemDto.DueDate,
                     Priority = priority,
-                    CategoryId = taskItemDto.CategoryId
+                    CategoryId = taskItemDto.CategoryId,
+                    UserId = userId
                 };
 
-                var id = await _taskItemRepository.CreateTaskItemAsync(userId, entity);
+                var id = await _genericRepository.AddAsync(entity);
 
                 return ServiceResponse<TaskItemDto>.Success(new TaskItemDto
                 {
