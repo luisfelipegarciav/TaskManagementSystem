@@ -11,12 +11,15 @@ namespace TaskManagementSystem.Application
             services.AddMediatR(typeof(DependencyInjection).Assembly);
             services.AddValidatorsFromAssemblyContaining<CreateUserDto>();
             services.AddValidatorsFromAssemblyContaining<CreateCategoryDto>();
+            services.AddValidatorsFromAssemblyContaining<CreateTaskItemDto>();
+            services.AddValidatorsFromAssemblyContaining<UpdateTaskItemDto>();
             services.AddValidatorsFromAssemblyContaining<AuthenticateUserCommandValidator>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<ITaskItemService, TaskItemService>();
             return services;
         }   
     }
