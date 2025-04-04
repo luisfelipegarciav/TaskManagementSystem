@@ -30,5 +30,21 @@ namespace TaskManagementSystem.WebApi.Controllers
 
             return Unauthorized("Invalid credentials.");
         }
+
+        [HttpPost("/refreshtoken")]
+        [ProducesResponseType(typeof(int), 200)]
+        [ProducesResponseType(typeof(int), 401)]
+        public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequestDto dto)
+        {
+            var command = new RefreshTokenCommand(dto);
+            var result = await _mediator.Send(command);
+
+            if (result.IsSuccessful)
+            {
+                return Ok(result.Data);
+            }
+
+            return Unauthorized("Invalid refresh token.");
+        }
     }
 }
