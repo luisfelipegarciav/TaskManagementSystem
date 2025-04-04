@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using TaskManagementSystem.Application.Exceptions;
 using TaskManagementSystem.Domain;
 
 namespace TaskManagementSystem.Application
@@ -22,6 +23,37 @@ namespace TaskManagementSystem.Application
             _userRespositoryGeneric = userRespositoryGeneric;
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
+        }
+
+        public async Task<ServiceResponse<bool>> ChangePasswordAsync(int userId, ChangePasswordRequestDto changePasswordRequest)
+        {
+            try
+            {
+                if (changePasswordRequest == null
+                    || string.IsNullOrWhiteSpace(changePasswordRequest.CurrentPassword)
+                    || string.IsNullOrWhiteSpace(changePasswordRequest.NewPassword)
+                    || changePasswordRequest.NewPassword.Equals(changePasswordRequest.CurrentPassword))
+                    throw new InvalidModelException();
+
+                var currentUser = (await GetByIdAsync(userId)).Data;
+                if (currentUser == null)
+                    throw new EntityNotFoundException("User not found.");
+
+                var result = _passwordHasher.VerifyHashedPassword(currentUser, currentUser.PasswordHash, changePasswordRequest.CurrentPassword);
+                if (result != PasswordVerificationResult.Success)
+                    throw new EntityNotFoundException("User not found.");
+
+                currentUser.PasswordHash = _passwordHasher.HashPassword(currentUser, changePasswordRequest.NewPassword);
+
+                await _userRepository.ChangePasswordAsync(currentUser.Id, currentUser.PasswordHash);
+
+                return ServiceResponse<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(UserService)}.{nameof(ChangePasswordAsync)}");
+                return ServiceResponse<bool>.Failure(ex.Message);
+            }
         }
 
         public async Task<ServiceResponse<UserDto>> CreateUserAsync(CreateUserDto userDto)

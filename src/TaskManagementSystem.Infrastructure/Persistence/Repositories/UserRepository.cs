@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using System.Data;
 using TaskManagementSystem.Domain;
+using static Dapper.SqlMapper;
 
 namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
 {
@@ -23,6 +24,20 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
 
                 entity.Id = await connection.ExecuteScalarAsync<int>("spCreateUser", parameters, commandType: CommandType.StoredProcedure);
                 return entity;
+            }
+        }
+
+        public async Task ChangePasswordAsync(int userId, string password)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = userId,
+                    p_password = password
+                };
+
+                await connection.ExecuteScalarAsync<int>("spUpdateUserPassword", parameters, commandType: CommandType.StoredProcedure);
             }
         }
 

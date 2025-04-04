@@ -8,5 +8,6 @@ namespace TaskManagementSystem.Application
         Task<ServiceResponse<User>> GetByUsernameAsync(string username);
         Task<ServiceResponse<IEnumerable<Role>>> GetByRolesByUserId(int userId);
         Task<ServiceResponse<User>> GetByIdAsync(int it);
+        Task<ServiceResponse<bool>> ChangePasswordAsync(int userId, ChangePasswordRequestDto changePasswordRequest);
     }
 }
