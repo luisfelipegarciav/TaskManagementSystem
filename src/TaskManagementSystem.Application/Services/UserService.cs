@@ -191,5 +191,56 @@ namespace TaskManagementSystem.Application
                 return ServiceResponse<User>.Failure(ex.Message);
             }
         }
+
+        public async Task<ServiceResponse<bool>> UpdateUserAsync(UpdateUserDto dto)
+        {
+            try
+            {
+                if (dto == null || !dto.Id.HasValue || dto.Id.Value < 1)
+                    throw new InvalidModelException("Invalid user data.");
+
+                if (string.IsNullOrWhiteSpace(dto.Email))
+                    throw new InvalidModelException("Invalid email");
+
+                if (dto.Roles == null || dto.Roles.Count == 0)
+                    throw new InvalidModelException("Roles are required.");
+
+                var roles = new List<int>();
+                foreach (var role in dto.Roles.Select(x => x).Distinct())
+                {
+                    var roleId = await _userRepository.GetRoleByNameAsync(role);
+                    if (roleId == null)
+                        throw new InvalidModelException($"Role {role} not found.");
+                    roles.Add(roleId.Id);
+                }
+
+                var currentUser = (await GetByIdAsync(dto.Id.Value)).Data;
+                if (currentUser == null)
+                    throw new EntityNotFoundException("User not found.");
+
+                currentUser.Email = dto.Email;
+
+                await _userRespositoryGeneric.UpdateAsync(currentUser);
+
+                await _userRepository.DeleteUserRolesByIdAsync(currentUser.Id);
+
+                foreach (var roleId in roles)
+                {
+                    var userRole = new UserRole
+                    {
+                        UserId = currentUser.Id,
+                        RoleId = roleId
+                    };
+                    await _userRepository.AddUserRoleAsync(userRole);
+                }
+
+                return ServiceResponse<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating user.");
+                return ServiceResponse<bool>.Failure(ex.Message);
+            }
+        }
     }
 }

@@ -138,9 +138,18 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
-        public override Task UpdateAsync(User entity)
+        public override async Task UpdateAsync(User entity)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = entity.Id,
+                    p_email = entity.Email,
+                };
+
+                await connection.ExecuteAsync("spUpdateUser", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
     }
 }
