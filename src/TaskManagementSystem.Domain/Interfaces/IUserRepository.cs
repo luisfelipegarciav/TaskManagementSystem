@@ -6,5 +6,7 @@
         Task<IEnumerable<Role>> GetUserRolesAsync(int userId);
         Task ChangePasswordAsync(int userId, string password);
         Task DeleteUserRolesByIdAsync(int userId);
+        Task<Role> GetRoleByNameAsync(string name);
+        Task AddUserRoleAsync(UserRole userRole);
     }
 }

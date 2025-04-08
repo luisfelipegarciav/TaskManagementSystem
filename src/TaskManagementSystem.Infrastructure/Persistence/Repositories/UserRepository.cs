@@ -27,6 +27,20 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task AddUserRoleAsync(UserRole userRole)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_user_id = userRole.UserId,
+                    p_role_id = userRole.RoleId
+                };
+
+                await connection.ExecuteScalarAsync<int>("spAddUserRole", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
         public async Task ChangePasswordAsync(int userId, string password)
         {
             using (IDbConnection connection = CreateConnection())
@@ -95,6 +109,19 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
                 };
 
                 return await connection.QueryFirstOrDefaultAsync<User>("spGetUserByUsername", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task<Role> GetRoleByNameAsync(string name)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_name = name
+                };
+
+                return await connection.QueryFirstOrDefaultAsync<Role>("spGetRoleByName", parameters, commandType: CommandType.StoredProcedure);
             }
         }
 

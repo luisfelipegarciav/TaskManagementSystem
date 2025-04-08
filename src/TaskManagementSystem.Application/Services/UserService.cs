@@ -63,6 +63,33 @@ namespace TaskManagementSystem.Application
         {
             try
             {
+                if (userDto == null)
+                    throw new InvalidModelException("Invalid user data.");
+
+                if (string.IsNullOrWhiteSpace(userDto.Username))
+                    throw new InvalidModelException("Invalid username");
+
+                if (string.IsNullOrWhiteSpace(userDto.Email))
+                    throw new InvalidModelException("Invalid email");
+
+                if (string.IsNullOrWhiteSpace(userDto.Password))
+                    throw new InvalidModelException("Invalid password");
+
+                if (string.IsNullOrWhiteSpace(userDto.Username))
+                    throw new InvalidModelException("Invalid username");
+
+                if (userDto.Roles == null || userDto.Roles.Count == 0)
+                    throw new InvalidModelException("Roles are required.");
+
+                var roles = new List<int>();
+                foreach (var role in userDto.Roles.Select(x => x).Distinct())
+                {
+                    var roleId = await _userRepository.GetRoleByNameAsync(role);
+                    if (roleId == null)
+                        throw new InvalidModelException($"Role {role} not found.");
+                    roles.Add(roleId.Id);
+                }
+
                 var user = new User
                 {
                     Email = userDto.Email,
@@ -73,11 +100,24 @@ namespace TaskManagementSystem.Application
 
                 var createdUser = await _userRespositoryGeneric.AddAsync(user);
 
+                if (createdUser == null)
+                    throw new InvalidModelException("User not created.");
+
+                foreach (var roleId in roles)
+                {
+                    var userRole = new UserRole
+                    {
+                        UserId = createdUser.Id,
+                        RoleId = roleId
+                    };
+                    await _userRepository.AddUserRoleAsync(userRole);
+                }
+
                 return ServiceResponse<UserDto>.Success(new UserDto
                 {
                     Id = createdUser.Id,
-                    Email = createdUser.Email,
-                    Username = createdUser.Username
+                    Email = userDto.Email,
+                    Username = userDto.Username
                 });
             }
             catch (Exception ex)
