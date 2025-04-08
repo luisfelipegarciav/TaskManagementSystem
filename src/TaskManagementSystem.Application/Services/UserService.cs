@@ -11,18 +11,21 @@ namespace TaskManagementSystem.Application
         private readonly IPasswordHasher<User> _passwordHasher;
         private readonly ILogger<UserService> _logger;
         private readonly IUserRepository _userRepository;
+        private readonly ITaskItemService _taskItemService;
 
         public UserService(
             ILogger<UserService> logger,
             IRepository<User> userRespositoryGeneric,
             IPasswordHasher<User> passwordHasher,
-            IUserRepository userRepository
+            IUserRepository userRepository,
+            ITaskItemService taskItemService
             )
         {
             _logger = logger;
             _userRespositoryGeneric = userRespositoryGeneric;
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
+            _taskItemService = taskItemService;
         }
 
         public async Task<ServiceResponse<bool>> ChangePasswordAsync(int userId, ChangePasswordRequestDto changePasswordRequest)
@@ -81,6 +84,29 @@ namespace TaskManagementSystem.Application
             {
                 _logger.LogError(ex, "Error creating user.");
                 return ServiceResponse<UserDto>.Failure(ex.Message);
+            }
+        }
+
+        public async Task<ServiceResponse<bool>> DeleteUserByIdAsync(int userId)
+        {
+            try
+            {
+                if (userId < 1)
+                    throw new InvalidModelException("Invalid user id.");
+
+                var getTaskItemsCountByUserIdResponse = await _taskItemService.GetTaskItemsCountByUserIdAsync(userId);
+                if (getTaskItemsCountByUserIdResponse.IsSuccessful && getTaskItemsCountByUserIdResponse.Data > 0)
+                    return ServiceResponse<bool>.Failure("User cannot be deleted because it has task items.");
+
+                await _userRepository.DeleteUserRolesByIdAsync(userId);
+
+                await _userRespositoryGeneric.DeleteAsync(userId);
+                return ServiceResponse<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(UserService)}.{nameof(DeleteUserByIdAsync)}");
+                return ServiceResponse<bool>.Failure(ex.Message);
             }
         }
 

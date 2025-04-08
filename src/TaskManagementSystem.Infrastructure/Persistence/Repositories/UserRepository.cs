@@ -41,9 +41,30 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
-        public override Task DeleteAsync(int id)
+        public override async Task DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = id
+                };
+
+                await connection.ExecuteScalarAsync<int>("spDeleteUser", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task DeleteUserRolesByIdAsync(int userId)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = userId
+                };
+
+                await connection.ExecuteScalarAsync<int>("spDeleteUserRoles", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public override Task<List<User>> GetAllAsync()
