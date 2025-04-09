@@ -9,7 +9,7 @@ namespace TaskManagementSystem.Application.UnitTests
 
         public ChangeUserPasswordCommandUnitTests()
         {
-            // Arrange: Create a mock of the IAuthenticationService
+            // Arrange: Create a mock of the service
             _mockAuthService = new Mock<IUserService>();
 
             // Arrange: Create an instance of the command handler with the mocked service
