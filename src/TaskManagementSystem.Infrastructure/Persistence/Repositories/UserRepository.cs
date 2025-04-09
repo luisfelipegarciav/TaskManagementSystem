@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using System.Data;
 using TaskManagementSystem.Domain;
+using static Dapper.SqlMapper;
 
 namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
 {
@@ -26,9 +27,58 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
-        public override Task DeleteAsync(int id)
+        public async Task AddUserRoleAsync(UserRole userRole)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_user_id = userRole.UserId,
+                    p_role_id = userRole.RoleId
+                };
+
+                await connection.ExecuteScalarAsync<int>("spAddUserRole", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task ChangePasswordAsync(int userId, string password)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = userId,
+                    p_password = password
+                };
+
+                await connection.ExecuteScalarAsync<int>("spUpdateUserPassword", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public override async Task DeleteAsync(int id)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = id
+                };
+
+                await connection.ExecuteScalarAsync<int>("spDeleteUser", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task DeleteUserRolesByIdAsync(int userId)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = userId
+                };
+
+                await connection.ExecuteScalarAsync<int>("spDeleteUserRoles", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
 
         public override Task<List<User>> GetAllAsync()
@@ -62,6 +112,19 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task<Role> GetRoleByNameAsync(string name)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_name = name
+                };
+
+                return await connection.QueryFirstOrDefaultAsync<Role>("spGetRoleByName", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
         public async Task<IEnumerable<Role>> GetUserRolesAsync(int userId)
         {
             using (IDbConnection connection = CreateConnection())
@@ -75,9 +138,40 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
-        public override Task UpdateAsync(User entity)
+        public async Task<IEnumerable<User>> GetUsersAsync(int rowOffset, int pageSize)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_offset = rowOffset,
+                    p_fetch_rows = pageSize
+                };
+
+                return await connection.QueryAsync<User>("spGetUsers", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task<int> GetUsersCountAsync()
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                return await connection.ExecuteScalarAsync<int>("spUsersCount", commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public override async Task UpdateAsync(User entity)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_id = entity.Id,
+                    p_email = entity.Email,
+                };
+
+                await connection.ExecuteAsync("spUpdateUser", parameters, commandType: CommandType.StoredProcedure);
+            }
         }
     }
 }

@@ -135,14 +135,14 @@ namespace TaskManagementSystem.Application
             try
             {
                 if (id < 1)
-                    throw new InvalidModelException("Invalid task id.");
+                    throw new InvalidModelException("Invalid user id.");
 
                 if (paginationParams == null
                     || paginationParams.PageNumber < 1
                     || paginationParams.PageSize < 1)
                     throw new InvalidModelException("Invalid pagination params.");
 
-                var taskCount = await _taskItemRepository.GetTaskItemsCountByUserIdAsync(id);
+                var taskCount = (await GetTaskItemsCountByUserIdAsync(id)).Data;
 
                 var items = new List<TaskItemDto>();
                 if (taskCount > 0)
@@ -291,6 +291,25 @@ namespace TaskManagementSystem.Application
             if (!getCategoryByIdResponse.IsSuccessful)
             {
                 throw new CategoryNotFoundException();
+            }
+        }
+
+        public async Task<ServiceResponse<int>> GetTaskItemsCountByUserIdAsync(int userId)
+        {
+            try
+            {
+                if (userId < 1)
+                    throw new InvalidModelException("Invalid user.");
+
+                var taskCount = await _taskItemRepository.GetTaskItemsCountByUserIdAsync(userId);
+
+                return ServiceResponse<int>.Success(taskCount);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting task items count by user id.");
+                return ServiceResponse<int>.Failure(ex.Message);
             }
         }
     }
