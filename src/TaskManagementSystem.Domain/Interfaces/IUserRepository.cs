@@ -8,5 +8,7 @@
         Task DeleteUserRolesByIdAsync(int userId);
         Task<Role> GetRoleByNameAsync(string name);
         Task AddUserRoleAsync(UserRole userRole);
+        Task<int> GetUsersCountAsync();
+        Task<IEnumerable<User>> GetUsersAsync(int rowOffset, int pageSize);
     }
 }

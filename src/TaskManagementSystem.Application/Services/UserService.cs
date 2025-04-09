@@ -192,6 +192,49 @@ namespace TaskManagementSystem.Application
             }
         }
 
+        public async Task<ServiceResponse<PaginatedResultDto<UserDto>>> GetUsersAsync(PaginationParamsDto pagination)
+        {
+            try
+            {
+                if (pagination == null
+                    || pagination.PageNumber < 1
+                    || pagination.PageSize < 1)
+                    throw new InvalidModelException("Invalid pagination params.");
+
+                var usersCount = await _userRepository.GetUsersCountAsync();
+
+                var items = new List<UserDto>();
+                if (usersCount > 0)
+                {
+                    var rowOffset = (pagination.PageNumber - 1) * pagination.PageSize;
+                    var users = await _userRepository.GetUsersAsync(rowOffset, pagination.PageSize);
+                    if (users != null && users.Count() > 0)
+                    {
+                        items = users.Select(x =>
+                        new UserDto
+                        {
+                            Email = x.Email,
+                            Username = x.Username,
+                            Id = x.Id,
+                        })?.ToList();
+                    }
+                }
+
+                return ServiceResponse<PaginatedResultDto<UserDto>>.Success(new PaginatedResultDto<UserDto>
+                {
+                    Items = items ?? new List<UserDto>(),
+                    TotalCount = usersCount,
+                    PageNumber = pagination.PageNumber,
+                    PageSize = pagination.PageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"{nameof(UserService)}.{nameof(GetUsersAsync)}");
+                return ServiceResponse<PaginatedResultDto<UserDto>>.Failure(ex.Message);
+            }
+        }
+
         public async Task<ServiceResponse<bool>> UpdateUserAsync(UpdateUserDto dto)
         {
             try

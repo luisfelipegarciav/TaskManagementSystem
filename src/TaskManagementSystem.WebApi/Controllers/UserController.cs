@@ -87,5 +87,22 @@ namespace TaskManagementSystem.WebApi.Controllers
 
             return BadRequest(result.Message ?? "Unable to apply changes.");
         }
+
+        [HttpPost("/list")]
+        [Authorize(Roles = "admin")]
+        [ProducesResponseType(typeof(int), 200)]
+        [ProducesResponseType(typeof(int), 401)]
+        public async Task<IActionResult> GetUsersAsync([FromBody] PaginationParamsDto paginationParamsDto)
+        {
+            var command = new GetUsersCommand(paginationParamsDto);
+            var result = await _mediator.Send(command);
+
+            if (result.IsSuccessful)
+            {
+                return Ok(result.Data);
+            }
+
+            return BadRequest(result.Message ?? "Unable to pull users.");
+        }
     }
 }

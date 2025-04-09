@@ -138,6 +138,28 @@ namespace TaskManagementSystem.Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task<IEnumerable<User>> GetUsersAsync(int rowOffset, int pageSize)
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                var parameters = new
+                {
+                    p_offset = rowOffset,
+                    p_fetch_rows = pageSize
+                };
+
+                return await connection.QueryAsync<User>("spGetUsers", parameters, commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task<int> GetUsersCountAsync()
+        {
+            using (IDbConnection connection = CreateConnection())
+            {
+                return await connection.ExecuteScalarAsync<int>("spUsersCount", commandType: CommandType.StoredProcedure);
+            }
+        }
+
         public override async Task UpdateAsync(User entity)
         {
             using (IDbConnection connection = CreateConnection())
