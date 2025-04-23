@@ -2,7 +2,7 @@
 using Moq;
 using TaskManagementSystem.Domain;
 
-namespace TaskManagementSystem.Application.UnitTests
+namespace TaskManagementSystem.Application.UnitTests.Services
 {
     public class CategoryServiceUnitTest
     {

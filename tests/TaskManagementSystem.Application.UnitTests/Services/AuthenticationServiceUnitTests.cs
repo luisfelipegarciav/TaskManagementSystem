@@ -5,7 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using TaskManagementSystem.Domain;
 
-namespace TaskManagementSystem.Application.UnitTests
+namespace TaskManagementSystem.Application.UnitTests.Services
 {
     public class AuthenticationServiceUnitTests
     {

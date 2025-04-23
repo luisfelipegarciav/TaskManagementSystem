@@ -1,6 +1,6 @@
 ﻿using Moq;
 
-namespace TaskManagementSystem.Application.UnitTests
+namespace TaskManagementSystem.Application.UnitTests.Commands.Users
 {
     public class GetUsersCommandUnitTests
     {
