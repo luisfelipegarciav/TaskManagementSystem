@@ -54,7 +54,7 @@ namespace TaskManagementSystem.Application
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating category.");
+                _logger.LogError(ex, "Error creating task.");
                 return ServiceResponse<TaskItemDto>.Failure(ex.Message);
             }
         }
@@ -280,12 +280,6 @@ namespace TaskManagementSystem.Application
 
             if (!IsValidDueDate(taskItemDto.DueDate))
                 throw new InvalidModelException("Invalid Due date.");
-
-            var currentPriority = Enum.TryParse(taskItemDto.Priority, out Priority priority);
-            if (!currentPriority)
-            {
-                throw new InvalidModelException("Invalid priority.");
-            }
 
             var getCategoryByIdResponse = await _categoryService.GetCategoryByIdAsync(taskItemDto.CategoryId);
             if (!getCategoryByIdResponse.IsSuccessful)
