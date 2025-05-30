@@ -75,9 +75,6 @@ namespace TaskManagementSystem.Application
                 if (string.IsNullOrWhiteSpace(userDto.Password))
                     throw new InvalidModelException("Invalid password");
 
-                if (string.IsNullOrWhiteSpace(userDto.Username))
-                    throw new InvalidModelException("Invalid username");
-
                 if (userDto.Roles == null || userDto.Roles.Count == 0)
                     throw new InvalidModelException("Roles are required.");
 
@@ -173,7 +170,7 @@ namespace TaskManagementSystem.Application
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"{nameof(UserService)}.{nameof(GetByUsernameAsync)}");
+                _logger.LogError(ex, $"{nameof(UserService)}.{nameof(GetByRolesByUserId)}");
                 return ServiceResponse<IEnumerable<Role>>.Failure(ex.Message);
             }
         }

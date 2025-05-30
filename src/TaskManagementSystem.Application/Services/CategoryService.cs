@@ -89,7 +89,7 @@ namespace TaskManagementSystem.Application
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating category.");
+                _logger.LogError(ex, "Error pulling categories.");
                 return ServiceResponse<List<CategoryDto>>.Failure(ex.Message);
             }
         }
