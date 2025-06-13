@@ -25,6 +25,7 @@ namespace TaskManagementSystem.WebApi
             // Configure Serilog
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information() // Set the minimum log level
+                .WriteTo.Console()
                 .WriteTo.File(
                     path: "logs/myapp-.json",
                     rollingInterval: RollingInterval.Day, // Roll daily

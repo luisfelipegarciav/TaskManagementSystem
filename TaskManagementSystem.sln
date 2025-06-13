@@ -17,6 +17,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManagementSystem.WebApi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskManagementSystem.Application.UnitTests", "tests\TaskManagementSystem.Application.UnitTests\TaskManagementSystem.Application.UnitTests.csproj", "{03D9917F-4C34-4E01-BEDF-94CCB2E5D8B1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B34F9720-32B4-4FB0-8745-8D93636195D1}"
+	ProjectSection(SolutionItems) = preProject
+		.env.example = .env.example
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
