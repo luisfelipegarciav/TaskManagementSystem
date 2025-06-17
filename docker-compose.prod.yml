@@ -1,0 +1,29 @@
+services:
+  api:
+    image: luisfelipegarciav/taskmanagementsystem.api:latest
+    build:
+      context: .
+      dockerfile: src/TaskManagementSystem.WebApi/Dockerfile.dockerfile
+    ports:
+      - "${API_PORT}:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    depends_on:
+      - db
+      - migration-tool
+
+  db:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+
+  migration-tool:
+    volumes:
+      - ./db/${TskMgr_DatabaseProvider}:/flyway/migrations:ro
+
+volumes:
+  mariadb_taskmanager_data:
