@@ -1,0 +1,31 @@
+services:
+  db:
+    image: mariadb:11.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    volumes:
+      - mariadb_taskmanager_data:/var/lib/mysql
+    networks:
+      - backend
+
+  migration-tool:
+    image: flyway/flyway:11
+    command: -url=jdbc:mysql://db/${MYSQL_DATABASE} -user=root -password=${MYSQL_ROOT_PASSWORD} -locations=filesystem:/flyway/migrations -connectRetries=30 migrate
+    volumes:
+      - ./db/${TskMgr_DatabaseProvider}:/flyway/migrations
+    depends_on:
+      - db
+    networks:
+      - backend
+
+volumes:
+  mariadb_taskmanager_data:
+
+networks:
+  backend:

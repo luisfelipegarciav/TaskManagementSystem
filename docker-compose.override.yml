@@ -1,0 +1,27 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: src/TaskManagementSystem.WebApi/Dockerfile
+    ports:
+      - "${API_PORT}:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      TskMgr_DatabaseProvider: ${TskMgr_DatabaseProvider}
+      TskMgr_ConnectionStrings__MariaDbConnection: ${TskMgr_ConnectionStrings__MariaDbConnection}
+      TskMgr_Jwt__Issuer: ${TskMgr_Jwt__Issuer}
+      TskMgr_Jwt__Audience: ${TskMgr_Jwt__Audience}
+      TskMgr_Jwt__SecretKey: ${TskMgr_Jwt__SecretKey}
+    depends_on:
+      - db
+      - migration-tool
+    networks:
+      - backend
+
+  db:
+    ports:
+      - "${DB_PORT}:3306"
+
+volumes:
+  mariadb_taskmanager_data:

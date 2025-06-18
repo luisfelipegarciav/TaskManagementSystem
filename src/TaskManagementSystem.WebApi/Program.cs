@@ -25,6 +25,7 @@ namespace TaskManagementSystem.WebApi
             // Configure Serilog
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information() // Set the minimum log level
+                .WriteTo.Console()
                 .WriteTo.File(
                     path: "logs/myapp-.json",
                     rollingInterval: RollingInterval.Day, // Roll daily
@@ -40,6 +41,9 @@ namespace TaskManagementSystem.WebApi
             // Add services to the container.
 
             builder.Services.AddControllers();
+
+            // Add basic health checks
+            builder.Services.AddHealthChecks();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -107,6 +111,7 @@ namespace TaskManagementSystem.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.MapHealthChecks("/health");
 
             app.MapControllers();
 

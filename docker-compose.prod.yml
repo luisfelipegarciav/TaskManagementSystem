@@ -1,0 +1,56 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "${API_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - backend
+
+  api:
+    image: luisfelipegarciav/taskmanagementsystem.api:latest
+    expose:
+      - "80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:80
+      TskMgr_DatabaseProvider: ${TskMgr_DatabaseProvider}
+      TskMgr_ConnectionStrings__MariaDbConnection: ${TskMgr_ConnectionStrings__MariaDbConnection}
+      TskMgr_Jwt__Issuer: ${TskMgr_Jwt__Issuer}
+      TskMgr_Jwt__Audience: ${TskMgr_Jwt__Audience}
+      TskMgr_Jwt__SecretKey: ${TskMgr_Jwt__SecretKey}
+    depends_on:
+      - db
+      - migration-tool
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  db:
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    networks:
+      - backend
+
+  migration-tool:
+    volumes:
+      - ./db/${TskMgr_DatabaseProvider}:/flyway/migrations:ro
+
+volumes:
+  mariadb_taskmanager_data:
+
+networks:
+  backend:
