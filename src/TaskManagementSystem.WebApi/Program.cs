@@ -97,7 +97,7 @@ namespace TaskManagementSystem.WebApi
             app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Configuration.GetValue<bool>("API_Enable_Swagger"))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI(c =>
