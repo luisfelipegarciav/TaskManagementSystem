@@ -12,7 +12,7 @@ services:
       - backend
 
   api:
-    image: luisfelipegarciav/taskmanagementsystem.api:latest
+    image: luisfelipegarciav/taskmanagementsystem.api:1.1
     expose:
       - "80"
     environment:
@@ -23,6 +23,7 @@ services:
       TskMgr_Jwt__Issuer: ${TskMgr_Jwt__Issuer}
       TskMgr_Jwt__Audience: ${TskMgr_Jwt__Audience}
       TskMgr_Jwt__SecretKey: ${TskMgr_Jwt__SecretKey}
+      API_Enable_Swagger: ${API_Enable_Swagger}
     depends_on:
       - db
       - migration-tool
