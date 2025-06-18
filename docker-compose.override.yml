@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: src/TaskManagementSystem.WebApi/Dockerfile.dockerfile
+      dockerfile: src/TaskManagementSystem.WebApi/Dockerfile
     ports:
       - "${API_PORT}:80"
     environment:

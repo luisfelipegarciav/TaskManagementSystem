@@ -12,5 +12,9 @@ RUN dotnet publish ./src/TaskManagementSystem.WebApi/TaskManagementSystem.WebApi
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y curl
+
 COPY --from=build /app/out ./
 ENTRYPOINT ["dotnet", "TaskManagementSystem.WebApi.dll"]

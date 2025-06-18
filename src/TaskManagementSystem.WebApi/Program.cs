@@ -42,6 +42,9 @@ namespace TaskManagementSystem.WebApi
 
             builder.Services.AddControllers();
 
+            // Add basic health checks
+            builder.Services.AddHealthChecks();
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -108,6 +111,7 @@ namespace TaskManagementSystem.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.MapHealthChecks("/health");
 
             app.MapControllers();
 
